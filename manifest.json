@@ -1,20 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "struct Gemini",
-  "version": "0.1.0",
-  "description": "Structure your Gemini chats into typed groups.",
-  "permissions": [
-    "storage" 
-  ],
-  "host_permissions": [
-    "https://gemini.google.com/*"
-  ],
+  "name": "Structured Gemini",
+  "version": "1.0",
+  "description": "Typed grouping for Gemini",
+  "permissions": ["storage"],
   "content_scripts": [
     {
       "matches": ["https://gemini.google.com/*"],
-      "js": ["content.js"],
-      "css": ["styles.css"],
-      "run_at": "document_end"
+      "js": ["dist/content.js"]  
     }
   ]
 }
