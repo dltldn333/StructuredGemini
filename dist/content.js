@@ -1,6 +1,5 @@
 "use strict";
-// src/content.ts
-console.log("Struct Gemini: TS Initialized 🚀");
+console.log("Struct Gemini: TS Initialized ");
 const scanChatItems = () => {
     const nav = document.querySelector("mat-sidenav");
     if (!nav) {
