@@ -47,13 +47,13 @@ const injectGroupContainers = (nav: HTMLElement) => {
     container.appendChild(groupDiv);
   });
 
-  nav.prepend(container);
+  nav.appendChild(container);
 };
 
 const organizeChats = () => {
   const nav =
     document.querySelector<HTMLElement>("mat-sidenav") ||
-    document.querySelector<HTMLElement>("bard-sidenav");
+    document.querySelector<HTMLElement>("conversations-list");
   if (!nav) {
     console.log("struct Gemini: Navigation bar not found.");
     return;
