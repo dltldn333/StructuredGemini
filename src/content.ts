@@ -27,27 +27,56 @@ const injectGroupContainers = (nav: HTMLElement) => {
     const groupDiv = document.createElement("div");
     groupDiv.id = `group-${group.id}`;
     groupDiv.innerHTML = /* html */ `
-      <div style="
-        font-size: 12px; 
+      <div 
+        class="group-header"
+        style="
         font-weight: bold; 
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 50%;
-        padding: 8px 16px;
-        color: ${group.color}; 
-        margin-bottom: 5px; ">
-        <span style="background: ${group.color}; width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span>
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        padding: 12px 16px;
+        margin-bottom: 2px; 
+        cursor: pointer;
+        "
+        <span style="background: ${group.color}; width: 10px; height: 10px; display: inline-block; margin-right: 5px;"></span>
         ${group.name}
       </div>
       <div class="group-content" 
             style="
+            display: none;
             padding-left: 10px; 
             border-left: 2px solid ${group.color}33;">
       </div>
     `;
+
+    const header = groupDiv.querySelector(".group-header") as HTMLElement;
+    const content = groupDiv.querySelector(".group-content") as HTMLElement;
+
+    if (header && content) {
+      header.addEventListener("click", () => {
+        const isHidden = content.style.display === "none";
+        content.style.display = isHidden ? "block" : "none";
+        
+        console.log(`Clicked group: ${group.name}`);
+      });
+    }
+
     container.appendChild(groupDiv);
   });
 
   nav.appendChild(container);
+};
+
+const toggleGroup = (groupId: string) => {
+  const groupContent = document.querySelector(
+    `#group-${groupId} .group-content`,
+  ) as HTMLElement;
+  if (groupContent) {
+    if (groupContent.style.display === "none") {
+      groupContent.style.display = "block";
+    } else {
+      groupContent.style.display = "none";
+    }
+  }
 };
 
 const organizeChats = () => {
