@@ -26,22 +26,22 @@ const injectGroupContainers = (nav: HTMLElement) => {
   GROUPS.forEach((group) => {
     const groupDiv = document.createElement("div");
     groupDiv.id = `group-${group.id}`;
-    groupDiv.innerHTML = `
+    groupDiv.innerHTML = /* html */ `
       <div style="
         font-size: 12px; 
         font-weight: bold; 
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 50%;
+        padding: 8px 16px;
         color: ${group.color}; 
-        margin-bottom: 5px; 
-        font-family: monospace;">
-        ${group.name} {
+        margin-bottom: 5px; ">
+        <span style="background: ${group.color}; width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span>
+        ${group.name}
       </div>
-      <div class="group-content" style="padding-left: 10px; border-left: 2px solid ${group.color}33;"></div>
-      <div style="
-        font-size: 12px; 
-        color: ${group.color}; 
-        margin-top: 5px; 
-        font-family: monospace;">
-      }
+      <div class="group-content" 
+            style="
+            padding-left: 10px; 
+            border-left: 2px solid ${group.color}33;">
       </div>
     `;
     container.appendChild(groupDiv);
