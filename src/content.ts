@@ -1,4 +1,3 @@
-// src/content.ts
 console.log("struct Gemini: Loaded.");
 
 interface StructGroup {
@@ -8,15 +7,13 @@ interface StructGroup {
 }
 
 const GROUPS: StructGroup[] = [
-  { id: "study", name: "struct Study", color: "#81D4FA" }, 
-  { id: "misc", name: "struct Misc", color: "#E0E0E0" }, 
+  { id: "study", name: "struct Study", color: "#81D4FA" },
+  { id: "misc", name: "struct Misc", color: "#E0E0E0" },
 ];
 
 const chatMap: Record<string, string> = {};
 
-
 const injectGroupContainers = (nav: HTMLElement) => {
-
   if (nav.querySelector(".struct-container")) return;
 
   const container = document.createElement("div");
@@ -50,17 +47,17 @@ const injectGroupContainers = (nav: HTMLElement) => {
     container.appendChild(groupDiv);
   });
 
-
   nav.prepend(container);
 };
 
 const organizeChats = () => {
-  const nav = document.querySelector<HTMLElement>("mat-sidenav");
-  if (!nav){
-    console.log("struct Gemini: 네비게이션 없음.");    
+  const nav =
+    document.querySelector<HTMLElement>("mat-sidenav") ||
+    document.querySelector<HTMLElement>("bard-sidenav");
+  if (!nav) {
+    console.log("struct Gemini: Navigation bar not found.");
     return;
-  } 
-
+  }
 
   injectGroupContainers(nav);
 
@@ -69,16 +66,13 @@ const organizeChats = () => {
   );
 
   chatLinks.forEach((link) => {
-
     if (link.closest(".struct-container")) return;
 
     const id = link.getAttribute("href")?.split("/app/")[1];
     if (!id) return;
 
-
     const targetGroupId =
       id.charCodeAt(id.length - 1) % 2 === 0 ? "study" : "misc";
-
 
     const targetContainer = document.querySelector(
       `#group-${targetGroupId} .group-content`,
@@ -86,7 +80,6 @@ const organizeChats = () => {
 
     if (targetContainer) {
       targetContainer.appendChild(link);
-
 
       link.style.display = "flex";
       link.style.marginBottom = "2px";
@@ -97,7 +90,6 @@ const organizeChats = () => {
 const observer = new MutationObserver((mutations) => {
   organizeChats();
 });
-
 
 const startObserver = () => {
   const body = document.querySelector("body");
