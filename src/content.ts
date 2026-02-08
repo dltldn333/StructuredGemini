@@ -7,8 +7,8 @@ interface StructGroup {
 }
 
 const GROUPS: StructGroup[] = [
-  { id: "study", name: "struct Study", color: "#81D4FA" },
-  { id: "misc", name: "struct Misc", color: "#E0E0E0" },
+  { id: "study", name: "폴더 1", color: "#81D4FA" },
+  { id: "misc", name: "폴더 2", color: "#E0E0E0" },
 ];
 
 const chatMap: Record<string, string> = {};
@@ -55,7 +55,7 @@ const injectGroupContainers = (nav: HTMLElement) => {
       header.addEventListener("click", () => {
         const isHidden = content.style.display === "none";
         content.style.display = isHidden ? "block" : "none";
-        
+
         console.log(`Clicked group: ${group.name}`);
       });
     }
@@ -100,6 +100,9 @@ const organizeChats = () => {
     const id = link.getAttribute("href")?.split("/app/")[1];
     if (!id) return;
 
+    const chatItem = link.closest(".conversation-items-container");
+    if (!chatItem) return;
+
     const targetGroupId =
       id.charCodeAt(id.length - 1) % 2 === 0 ? "study" : "misc";
 
@@ -108,10 +111,7 @@ const organizeChats = () => {
     );
 
     if (targetContainer) {
-      targetContainer.appendChild(link);
-
-      link.style.display = "flex";
-      link.style.marginBottom = "2px";
+      targetContainer.appendChild(chatItem);
     }
   });
 };
