@@ -16,6 +16,20 @@ const chatMap: Record<string, string> = {};
 const injectGroupContainers = (nav: HTMLElement) => {
   if (nav.querySelector(".struct-container")) return;
 
+  const style = document.createElement("style");
+  style.textContent = /* css */ `
+    .group-content .conversation-items-container {
+      display: block !important;
+      width: 100% !important;
+    }
+    .group-content a.conversation {
+      display: flex !important;
+      width: 100% !important;
+      box-sizing: border-box;
+    }
+  `;
+  nav.appendChild(style);
+
   const container = document.createElement("div");
   container.className = "struct-container";
   container.style.padding = "10px";
@@ -26,6 +40,7 @@ const injectGroupContainers = (nav: HTMLElement) => {
   GROUPS.forEach((group) => {
     const groupDiv = document.createElement("div");
     groupDiv.id = `group-${group.id}`;
+
     groupDiv.innerHTML = /* html */ `
       <div 
         class="group-header"
@@ -34,9 +49,8 @@ const injectGroupContainers = (nav: HTMLElement) => {
         background: rgba(255, 255, 255, 0.1);
         border-radius: 4px;
         padding: 12px 16px;
-        margin-bottom: 2px; 
-        cursor: pointer;
-        "
+        margin-bottom: 4px; 
+        cursor: pointer;">
         <span style="background: ${group.color}; width: 10px; height: 10px; display: inline-block; margin-right: 5px;"></span>
         ${group.name}
       </div>
@@ -80,9 +94,7 @@ const toggleGroup = (groupId: string) => {
 };
 
 const organizeChats = () => {
-  const nav =
-    document.querySelector<HTMLElement>("mat-sidenav") ||
-    document.querySelector<HTMLElement>("conversations-list");
+  const nav = document.querySelector<HTMLElement>("#conversations-list-0");
   if (!nav) {
     console.log("struct Gemini: Navigation bar not found.");
     return;
@@ -107,6 +119,7 @@ const organizeChats = () => {
       id.charCodeAt(id.length - 1) % 2 === 0 ? "study" : "misc";
 
     const targetContainer = document.querySelector(
+      // `#group-${targetGroupId} .group-content`,
       `#group-${targetGroupId} .group-content`,
     );
 
