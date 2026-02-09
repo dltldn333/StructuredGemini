@@ -16,6 +16,21 @@ const chatMap: Record<string, string> = {};
 const injectGroupContainers = (nav: HTMLElement) => {
   if (nav.querySelector(".struct-container")) return;
 
+  // [수정됨] 스타일 깨짐 방지를 위한 CSS 강제 주입
+  const style = document.createElement("style");
+  style.textContent = /* css */ `
+    .group-content .conversation-items-container {
+      display: block !important;
+      width: 100% !important;
+    }
+    .group-content a.conversation {
+      display: flex !important;
+      width: 100% !important;
+      box-sizing: border-box;
+    }
+  `;
+  nav.appendChild(style);
+
   const container = document.createElement("div");
   container.className = "struct-container";
   container.style.padding = "10px";
@@ -26,6 +41,8 @@ const injectGroupContainers = (nav: HTMLElement) => {
   GROUPS.forEach((group) => {
     const groupDiv = document.createElement("div");
     groupDiv.id = `group-${group.id}`;
+
+    // [수정됨] 닫는 괄호(>) 누락 수정
     groupDiv.innerHTML = /* html */ `
       <div 
         class="group-header"
@@ -35,8 +52,7 @@ const injectGroupContainers = (nav: HTMLElement) => {
         border-radius: 4px;
         padding: 12px 16px;
         margin-bottom: 2px; 
-        cursor: pointer;
-        "
+        cursor: pointer;">
         <span style="background: ${group.color}; width: 10px; height: 10px; display: inline-block; margin-right: 5px;"></span>
         ${group.name}
       </div>
@@ -117,7 +133,9 @@ const organizeChats = () => {
 };
 
 const observer = new MutationObserver((mutations) => {
+  observer.disconnect();
   organizeChats();
+  startObserver();
 });
 
 const startObserver = () => {
