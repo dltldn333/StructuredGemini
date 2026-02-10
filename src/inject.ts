@@ -15,6 +15,10 @@ export const injectGroupContainers = (nav: HTMLElement) => {
 
   const style = document.createElement("style");
   style.textContent = /* css */ `
+    .group-content {
+      margin-top: 8px;
+    }
+
     .group-content .conversation-items-container {
       display: block !important;
       width: 100% !important;
@@ -42,30 +46,49 @@ export const injectGroupContainers = (nav: HTMLElement) => {
       <div 
         class="group-header"
         style="
-        font-weight: bold; 
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 4px;
-        padding: 12px 16px;
-        cursor: pointer;">
-        <span style="background: ${group.color}; width: 10px; height: 10px; display: inline-block; margin-right: 5px;"></span>
-        ${group.name}
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: transparent;
+        border: 1px solid #555;
+        color: #e3e3e3;
+        border-radius: 6px;
+        padding: 8px 12px;
+        cursor: pointer;
+        transition: background-color 0.2s;">
+        <div style="display: flex; align-items: center;">
+          <span style="background: ${group.color}; width: 10px; height: 10px; display: inline-block; margin-right: 8px; border-radius: 2px;"></span>
+          <span style="font-weight: 500;">${group.name}</span>
+        </div>
+        <span class="arrow-icon" style="font-size: 12px; color: #888;">▼</span>
       </div>
       <div class="group-content" 
             style="
             display: none;
             padding-left: 10px; 
+            margin-top: 5px;
             border-left: 2px solid ${group.color}33;">
       </div>
     `;
 
     const header = groupDiv.querySelector(".group-header") as HTMLElement;
     const content = groupDiv.querySelector(".group-content") as HTMLElement;
+    const arrow = groupDiv.querySelector(".arrow-icon") as HTMLElement;
 
     if (header && content) {
+      header.addEventListener("mouseover", () => {
+        header.style.background = "rgba(255, 255, 255, 0.05)";
+      });
+      header.addEventListener("mouseout", () => {
+        header.style.background = "transparent";
+      });
+
       header.addEventListener("click", () => {
         const isHidden = content.style.display === "none";
         content.style.display = isHidden ? "block" : "none";
-
+        if (arrow) {
+          arrow.textContent = isHidden ? "▲" : "▼";
+        }
         console.log(`Clicked group: ${group.name}`);
       });
     }
