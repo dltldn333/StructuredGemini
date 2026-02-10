@@ -15,6 +15,10 @@ export const injectGroupContainers = (nav: HTMLElement) => {
 
   const style = document.createElement("style");
   style.textContent = /* css */ `
+    .group-content {
+      margin-top: 8px;
+    }
+
     .group-content .conversation-items-container {
       display: block !important;
       width: 100% !important;
