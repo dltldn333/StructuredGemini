@@ -7,7 +7,9 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "esbuild src/main.ts --bundle --outfile=dist/main.js",
+    "watch": "esbuild src/main.ts --bundle --outfile=dist/main.js --watch"
   },
   "repository": {
     "type": "git",
@@ -21,6 +23,7 @@
   },
   "homepage": "https://github.com/dltldn333/StructuredGemini#readme",
   "devDependencies": {
+    "esbuild": "^0.27.3",
     "typescript": "^5.9.3"
   }
 }
