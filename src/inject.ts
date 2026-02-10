@@ -1,4 +1,5 @@
 import { StructGroup } from "./type";
+import { addGroup } from "./groupManage";
 
 const GROUPS: StructGroup[] = [
   { id: "study", name: "폴더 1", color: "#81D4FA" },
@@ -9,6 +10,8 @@ const chatMap: Record<string, string> = {};
 
 export const injectGroupContainers = (nav: HTMLElement) => {
   if (nav.querySelector(".struct-container")) return;
+
+  addGroup();
 
   const style = document.createElement("style");
   style.textContent = /* css */ `
@@ -43,7 +46,6 @@ export const injectGroupContainers = (nav: HTMLElement) => {
         background: rgba(255, 255, 255, 0.1);
         border-radius: 4px;
         padding: 12px 16px;
-        margin-bottom: 4px; 
         cursor: pointer;">
         <span style="background: ${group.color}; width: 10px; height: 10px; display: inline-block; margin-right: 5px;"></span>
         ${group.name}
@@ -73,4 +75,3 @@ export const injectGroupContainers = (nav: HTMLElement) => {
 
   nav.appendChild(container);
 };
-
