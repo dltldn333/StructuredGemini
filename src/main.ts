@@ -1,3 +1,4 @@
+import { addGroup } from "./groupManage";
 import { organizeChats } from "./organize";
 
 const observer = new MutationObserver((mutations) => {
