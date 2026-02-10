@@ -1,10 +1,4 @@
-console.log("struct Gemini: Loaded.");
-
-interface StructGroup {
-  id: string;
-  name: string;
-  color: string;
-}
+import { StructGroup } from "./type";
 
 const GROUPS: StructGroup[] = [
   { id: "study", name: "폴더 1", color: "#81D4FA" },
@@ -13,7 +7,7 @@ const GROUPS: StructGroup[] = [
 
 const chatMap: Record<string, string> = {};
 
-const injectGroupContainers = (nav: HTMLElement) => {
+export const injectGroupContainers = (nav: HTMLElement) => {
   if (nav.querySelector(".struct-container")) return;
 
   const style = document.createElement("style");
@@ -80,65 +74,3 @@ const injectGroupContainers = (nav: HTMLElement) => {
   nav.appendChild(container);
 };
 
-const toggleGroup = (groupId: string) => {
-  const groupContent = document.querySelector(
-    `#group-${groupId} .group-content`,
-  ) as HTMLElement;
-  if (groupContent) {
-    if (groupContent.style.display === "none") {
-      groupContent.style.display = "block";
-    } else {
-      groupContent.style.display = "none";
-    }
-  }
-};
-
-const organizeChats = () => {
-  const nav = document.querySelector<HTMLElement>("#conversations-list-0");
-  if (!nav) {
-    console.log("struct Gemini: Navigation bar not found.");
-    return;
-  }
-
-  injectGroupContainers(nav);
-
-  const chatLinks = Array.from(
-    nav.querySelectorAll<HTMLAnchorElement>('a[href^="/app/"]'),
-  );
-
-  chatLinks.forEach((link) => {
-    if (link.closest(".struct-container")) return;
-
-    const id = link.getAttribute("href")?.split("/app/")[1];
-    if (!id) return;
-
-    const chatItem = link.closest(".conversation-items-container");
-    if (!chatItem) return;
-
-    const targetGroupId =
-      id.charCodeAt(id.length - 1) % 2 === 0 ? "study" : "misc";
-
-    const targetContainer = document.querySelector(
-      // `#group-${targetGroupId} .group-content`,
-      `#group-${targetGroupId} .group-content`,
-    );
-
-    if (targetContainer) {
-      targetContainer.appendChild(chatItem);
-    }
-  });
-};
-
-const observer = new MutationObserver((mutations) => {
-  organizeChats();
-});
-
-const startObserver = () => {
-  const body = document.querySelector("body");
-  if (body) {
-    observer.observe(body, { childList: true, subtree: true });
-    console.log("struct Gemini: Observer Attached.");
-  }
-};
-
-setTimeout(startObserver, 1000);
