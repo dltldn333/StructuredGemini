@@ -1,13 +1,11 @@
 import { StructGroup } from "./type";
-import { addGroup } from "./groupManage";
+import { addGroup, makeGroupPopup } from "./groupManage";
 
 export const injectGroupContainers = async (nav: HTMLElement) => {
-  // 1. 버튼 및 스타일 확인 (이미 있으면 내부에서 방어)
   addGroup();
 
   let container = nav.querySelector<HTMLElement>(".struct-container");
   
-  // 2. 컨테이너가 없으면 생성
   if (!container) {
     const style = document.createElement("style");
     style.textContent = /* css */ `
@@ -15,6 +13,21 @@ export const injectGroupContainers = async (nav: HTMLElement) => {
       .group-content .conversation-items-container { display: block !important; width: 100% !important; }
       .group-content a.conversation { display: flex !important; width: 100% !important; box-sizing: border-box; }
       .no-groups-msg { color: #888; font-size: 12px; text-align: center; padding: 10px; border: 1px dashed #555; border-radius: 6px; }
+      
+      .group-header:hover .edit-group-btn { opacity: 1 !important; }
+      .edit-group-btn { 
+        opacity: 0; 
+        transition: opacity 0.2s; 
+        background: rgba(255,255,255,0.1); 
+        border: none; 
+        color: #888; 
+        border-radius: 4px; 
+        padding: 2px 6px; 
+        font-size: 10px; 
+        cursor: pointer;
+        margin-right: 8px;
+      }
+      .edit-group-btn:hover { color: white; background: rgba(255,255,255,0.2); }
     `;
     nav.appendChild(style);
 
@@ -27,11 +40,9 @@ export const injectGroupContainers = async (nav: HTMLElement) => {
     nav.prepend(container);
   }
 
-  // 3. 그룹 목록 가져오기 및 렌더링
   const result = await chrome.storage.local.get("groups");
   const groups: StructGroup[] = (result.groups as StructGroup[]) || [];
 
-  // "No groups" 메시지 처리
   const existingMsg = container.querySelector(".no-groups-msg");
   if (groups.length > 0 && existingMsg) existingMsg.remove();
   if (groups.length === 0 && !existingMsg) {
@@ -42,21 +53,32 @@ export const injectGroupContainers = async (nav: HTMLElement) => {
     return;
   }
 
-  // 각 그룹별로 존재 확인 후 없으면 추가
   groups.forEach((group) => {
-    if (document.getElementById(`group-${group.id}`)) return;
+    let groupDiv = document.getElementById(`group-${group.id}`);
+    
+    // 이미 있으면 이름과 색상만 업데이트
+    if (groupDiv) {
+      const nameEl = groupDiv.querySelector(".group-name");
+      const colorEl = groupDiv.querySelector(".group-color-dot");
+      if (nameEl) nameEl.textContent = group.name;
+      if (colorEl) (colorEl as HTMLElement).style.backgroundColor = group.color;
+      return;
+    }
 
-    const groupDiv = document.createElement("div");
+    groupDiv = document.createElement("div");
     groupDiv.id = `group-${group.id}`;
     groupDiv.style.marginBottom = "10px";
 
     groupDiv.innerHTML = /* html */ `
       <div class="group-header" style="display:flex; justify-content:space-between; align-items:center; background:transparent; border:1px solid #555; color:#e3e3e3; border-radius:6px; padding:8px 12px; cursor:pointer; transition:background-color 0.2s;">
-        <div style="display:flex; align-items:center;">
-          <span style="background:${group.color}; width:10px; height:10px; display:inline-block; margin-right:8px; border-radius:2px;"></span>
-          <span style="font-weight:500; font-size:13px;">${group.name}</span>
+        <div style="display:flex; align-items:center; flex:1; overflow:hidden;">
+          <span class="group-color-dot" style="background:${group.color}; width:10px; height:10px; display:inline-block; margin-right:8px; border-radius:2px; flex-shrink:0;"></span>
+          <span class="group-name" style="font-weight:500; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${group.name}</span>
         </div>
-        <span class="arrow-icon" style="font-size:10px; color:#888;">▼</span>
+        <div style="display:flex; align-items:center;">
+          <button class="edit-group-btn" data-id="${group.id}">edit</button>
+          <span class="arrow-icon" style="font-size:10px; color:#888;">▼</span>
+        </div>
       </div>
       <div class="group-content" style="display:none; padding-left:5px; margin-top:5px; border-left:1px solid ${group.color};"></div>
     `;
@@ -64,11 +86,18 @@ export const injectGroupContainers = async (nav: HTMLElement) => {
     const header = groupDiv.querySelector(".group-header") as HTMLElement;
     const content = groupDiv.querySelector(".group-content") as HTMLElement;
     const arrow = groupDiv.querySelector(".arrow-icon") as HTMLElement;
+    const editBtn = groupDiv.querySelector(".edit-group-btn") as HTMLElement;
 
-    header.addEventListener("click", () => {
+    header.addEventListener("click", (e) => {
+      if (editBtn.contains(e.target as Node)) return;
       const isHidden = content.style.display === "none";
       content.style.display = isHidden ? "block" : "none";
       arrow.textContent = isHidden ? "▲" : "▼";
+    });
+
+    editBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      makeGroupPopup(group.id); // 편집 모드로 팝업 호출
     });
 
     container!.appendChild(groupDiv);
