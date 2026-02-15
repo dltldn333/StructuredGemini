@@ -3,21 +3,19 @@ import { organizeChats } from "./organize";
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let isBusy = false;
 
-// 스크롤 시 추가되는 항목을 더 잘 감지하기 위해 targetNode와 필터 수정
 const observer = new MutationObserver((mutations) => {
   if (isBusy) return;
 
-  // 노드가 추가되었는지 확인 (삭제는 무시하여 성능 향상)
-  const hasAddedNodes = mutations.some(m => m.addedNodes.length > 0);
+  // 새로운 노드가 추가되었을 때만 실행
+  const hasNewNodes = mutations.some(m => m.addedNodes.length > 0);
 
-  if (hasAddedNodes) {
+  if (hasNewNodes) {
     if (debounceTimer) clearTimeout(debounceTimer);
     debounceTimer = setTimeout(async () => {
       isBusy = true;
       try {
         await organizeChats();
-        
-        // 팝업이 열려있다면 팝업 내 리스트도 갱신 신호를 보냄
+        // 팝업이 열려있을 경우 리스트 갱신을 위한 커스텀 이벤트 발생
         window.dispatchEvent(new CustomEvent("struct-gemini-refresh-popup"));
       } finally {
         isBusy = false;
@@ -29,7 +27,7 @@ const observer = new MutationObserver((mutations) => {
 const start = () => {
   const sidebar = document.querySelector("#conversations-list-0") || document.body;
   observer.observe(sidebar, { childList: true, subtree: true });
-  console.log("struct Gemini: Observer Started on sidebar");
+  console.log("struct Gemini: Observer Active");
   organizeChats();
 };
 
