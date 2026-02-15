@@ -16,10 +16,10 @@ export const addGroup = () => {
   groupBtn.innerText = "add group +";
   groupBtn.style.cssText = "margin-left:10px; padding:6px 12px; border:1px solid #444; border-radius:6px; color:#e3e3e3; cursor:pointer; background:transparent; font-size:11px; font-weight:500;";
   
-  groupBtn.onclick = (e) => {
+  groupBtn.addEventListener("click", (e) => {
     e.preventDefault(); e.stopPropagation();
     makeGroupPopup();
-  };
+  });
 
   titleSection.appendChild(groupBtn);
 };
@@ -76,8 +76,8 @@ export const makeGroupPopup = async (editingGroupId?: string) => {
           </div>`;
       }).join('');
 
-      listContainer.querySelectorAll('.struct-chat-item').forEach(item => {
-        item.onclick = (e) => {
+      listContainer.querySelectorAll<HTMLElement>('.struct-chat-item').forEach(item => {
+        item.onclick = (e:Event) => {
           const cb = item.querySelector('input') as HTMLInputElement;
           if (e.target !== cb) cb.checked = !cb.checked;
         };
