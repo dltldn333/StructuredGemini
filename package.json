@@ -9,7 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "esbuild src/main.ts --bundle --outfile=dist/main.js",
-    "watch": "esbuild src/main.ts --bundle --outfile=dist/main.js --watch"
+    "watch": "esbuild src/main.ts --bundle --outfile=dist/main.js --watch",
+    "zip": "npm run build && zip -r StructuredGemini.zip manifest.json dist icons"
   },
   "repository": {
     "type": "git",
