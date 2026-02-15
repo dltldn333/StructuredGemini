@@ -16,10 +16,10 @@ export const addGroup = () => {
   groupBtn.innerText = "add group +";
   groupBtn.style.cssText = "margin-left:10px; padding:6px 12px; border:1px solid #444; border-radius:6px; color:#e3e3e3; cursor:pointer; background:transparent; font-size:11px; font-weight:500;";
   
-  groupBtn.onclick = (e) => {
+  groupBtn.addEventListener("click", (e) => {
     e.preventDefault(); e.stopPropagation();
     makeGroupPopup();
-  };
+  });
 
   titleSection.appendChild(groupBtn);
 };
@@ -31,7 +31,6 @@ export const makeGroupPopup = async (editingGroupId?: string) => {
   const popup = document.createElement("div");
   popup.id = "group-management-popup";
   
-  // 팝업이 열릴 때 최신 데이터를 가져옴
   const result = await chrome.storage.local.get(["groups", "chatMapping"]);
   const groups = (result.groups as StructGroup[]) || [];
   const chatMapping = (result.chatMapping as Record<string, string>) || {};
@@ -45,7 +44,6 @@ export const makeGroupPopup = async (editingGroupId?: string) => {
     if (chatLinks.length === 0) {
       listContainer.innerHTML = '<div style="padding:20px; text-align:center; color:#80868b; font-size:13px;">No chats found. Scroll sidebar to load.</div>';
     } else {
-      // 팝업 내에서 사용자가 이미 체크한 상태를 유지하기 위해 현재 체크된 값들 수집
       const currentlyChecked = new Set(
         Array.from(listContainer.querySelectorAll<HTMLInputElement>(".chat-check:checked")).map(el => el.value)
       );
@@ -58,7 +56,6 @@ export const makeGroupPopup = async (editingGroupId?: string) => {
         const isPinned = /고정됨|고정된 채팅|Pinned|Pinned chat/i.test(text);
         text = text.replace(/고정됨|고정된 채팅|Pinned chat|Pinned/gi, "").trim();
         
-        // 기존에 체크되어 있었거나, 수정 모드에서 이미 이 그룹에 속해있는 경우 체크
         const isChecked = currentlyChecked.has(id) || (editingGroupId ? chatMapping[id] === editingGroupId : false);
         const assignedGroup = groups.find(g => g.id === chatMapping[id]);
         const statusText = assignedGroup && assignedGroup.id !== editingGroupId ? `(in ${assignedGroup.name})` : "";
@@ -76,8 +73,8 @@ export const makeGroupPopup = async (editingGroupId?: string) => {
           </div>`;
       }).join('');
 
-      listContainer.querySelectorAll('.struct-chat-item').forEach(item => {
-        item.onclick = (e) => {
+      listContainer.querySelectorAll<HTMLElement>('.struct-chat-item').forEach(item => {
+        item.onclick = (e:Event) => {
           const cb = item.querySelector('input') as HTMLInputElement;
           if (e.target !== cb) cb.checked = !cb.checked;
         };
@@ -108,7 +105,6 @@ export const makeGroupPopup = async (editingGroupId?: string) => {
   document.body.appendChild(popup);
   renderList();
 
-  // main.ts의 신호를 받아 리스트 갱신
   const refreshPopup = () => renderList();
   window.addEventListener("struct-gemini-refresh-popup", refreshPopup);
 
