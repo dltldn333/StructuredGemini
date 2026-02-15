@@ -6,7 +6,8 @@
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
-    "lib": ["DOM", "ES6"]     
+    "lib": ["DOM", "ES2015", "ES2017"],
+    "types": ["chrome"]
   },
   "include": ["src/**/*"]
 }

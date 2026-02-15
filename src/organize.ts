@@ -1,44 +1,40 @@
 import { injectGroupContainers } from "./inject";
+import { StructGroup } from "./type";
 
-export const organizeChats = () => {
+export const organizeChats = async () => {
   const nav = document.querySelector<HTMLElement>("#conversations-list-0");
-  if (!nav) return false;
+  if (!nav) return;
 
-  injectGroupContainers(nav);
+  // 그룹 컨테이너가 없으면 주입 (비동기)
+  await injectGroupContainers(nav);
+
+  const result = await chrome.storage.local.get(["groups", "chatMapping"]);
+  const groups = (result.groups as StructGroup[]) || [];
+  const chatMapping = (result.chatMapping as Record<string, string>) || {};
+
+  if (groups.length === 0) return;
 
   const chatLinks = Array.from(
     nav.querySelectorAll<HTMLAnchorElement>('a[href^="/app/"]:not([data-struct-organized])'),
   );
 
-  if (chatLinks.length === 0) return false;
-
-  let changed = false;
   chatLinks.forEach((link) => {
-    // Double check it's not already in a container (though the selector should handle it)
-    if (link.closest(".struct-container")) {
+    const href = link.getAttribute("href");
+    if (!href) return;
+    
+    const chatId = href.split("/app/")[1];
+    if (!chatId) return;
+
+    // 매핑 데이터에 있는 경우에만 이동
+    const targetGroupId = chatMapping[chatId];
+    if (targetGroupId) {
+      const targetContainer = document.querySelector(`#group-${targetGroupId} .group-content`);
+      const chatItem = link.closest(".conversation-items-container");
+      
+      if (targetContainer && chatItem) {
+        targetContainer.appendChild(chatItem);
         link.setAttribute("data-struct-organized", "true");
-        return;
-    }
-
-    const id = link.getAttribute("href")?.split("/app/")[1];
-    if (!id) return;
-
-    const chatItem = link.closest(".conversation-items-container");
-    if (!chatItem) return;
-
-    const targetGroupId =
-      id.charCodeAt(id.length - 1) % 2 === 0 ? "study" : "misc";
-
-    const targetContainer = document.querySelector(
-      `#group-${targetGroupId} .group-content`,
-    );
-
-    if (targetContainer) {
-      targetContainer.appendChild(chatItem);
-      link.setAttribute("data-struct-organized", "true");
-      changed = true;
+      }
     }
   });
-
-  return changed;
 };

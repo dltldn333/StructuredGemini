@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/dltldn333/StructuredGemini#readme",
   "devDependencies": {
+    "@types/chrome": "^0.1.36",
     "esbuild": "^0.27.3",
     "typescript": "^5.9.3"
   }
