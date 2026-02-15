@@ -56,7 +56,6 @@ export const injectGroupContainers = async (nav: HTMLElement) => {
   const result = await chrome.storage.local.get("groups");
   const groups: StructGroup[] = (result.groups as StructGroup[]) || [];
 
-  // 삭제된 그룹 처리 (채팅 구출)
   Array.from(container.querySelectorAll(".group-wrapper")).forEach(dom => {
     const id = dom.id.replace("group-", "");
     if (!groups.find(g => g.id === id)) {
