@@ -1,45 +1,38 @@
 import { organizeChats } from "./organize";
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-const debouncedOrganize = () => {
-  if (debounceTimer) {
-    clearTimeout(debounceTimer);
-  }
-  debounceTimer = setTimeout(() => {
-    organizeChats();
-  }, 100);
-};
+let isBusy = false;
 
 const observer = new MutationObserver((mutations) => {
-  // Only trigger if children are added or removed
-  const hasRelevantChanges = mutations.some(
-    (m) => m.type === "childList" && m.addedNodes.length > 0,
-  );
+  if (isBusy) return;
 
-  if (hasRelevantChanges) {
-    debouncedOrganize();
+  // 새로운 노드가 추가되었을 때만 실행
+  const hasNewNodes = mutations.some(m => m.addedNodes.length > 0);
+
+  if (hasNewNodes) {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(async () => {
+      isBusy = true;
+      try {
+        await organizeChats();
+        // 팝업이 열려있을 경우 리스트 갱신을 위한 커스텀 이벤트 발생
+        window.dispatchEvent(new CustomEvent("struct-gemini-refresh-popup"));
+      } finally {
+        isBusy = false;
+      }
+    }, 300);
   }
 });
 
-const startObserver = () => {
-  // Try to find a more specific container than body if possible
-  const targetNode = document.querySelector("#conversations-list-0")?.parentElement || document.body;
-  
-  observer.observe(targetNode, {
-    childList: true,
-    subtree: true,
-  });
-  
-  console.log(`struct Gemini: Observer Attached to ${targetNode === document.body ? "body" : "nav parent"}.`);
-  
-  // Initial run
+const start = () => {
+  const sidebar = document.querySelector("#conversations-list-0") || document.body;
+  observer.observe(sidebar, { childList: true, subtree: true });
+  console.log("struct Gemini: Observer Active");
   organizeChats();
 };
 
-// Start observing as soon as possible, but with a slight delay for initial load
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => setTimeout(startObserver, 500));
+if (document.readyState === "complete") {
+  setTimeout(start, 1000);
 } else {
-  setTimeout(startObserver, 500);
+  window.addEventListener("load", () => setTimeout(start, 1000));
 }

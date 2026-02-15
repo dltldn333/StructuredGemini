@@ -1,44 +1,45 @@
 import { injectGroupContainers } from "./inject";
+import { StructGroup } from "./type";
 
-export const organizeChats = () => {
+export const organizeChats = async () => {
   const nav = document.querySelector<HTMLElement>("#conversations-list-0");
-  if (!nav) return false;
+  if (!nav) return;
 
-  injectGroupContainers(nav);
+  await injectGroupContainers(nav);
 
-  const chatLinks = Array.from(
-    nav.querySelectorAll<HTMLAnchorElement>('a[href^="/app/"]:not([data-struct-organized])'),
-  );
+  const result = await chrome.storage.local.get(["groups", "chatMapping"]);
+  const groups = (result.groups as StructGroup[]) || [];
+  const chatMapping = (result.chatMapping as Record<string, string>) || {};
 
-  if (chatLinks.length === 0) return false;
+  const chatLinks = Array.from(nav.querySelectorAll<HTMLAnchorElement>('a[href^="/app/"]'));
 
-  let changed = false;
   chatLinks.forEach((link) => {
-    // Double check it's not already in a container (though the selector should handle it)
-    if (link.closest(".struct-container")) {
-        link.setAttribute("data-struct-organized", "true");
-        return;
-    }
+    const href = link.getAttribute("href");
+    const chatId = href?.split("/app/")[1];
+    if (!chatId) return;
 
-    const id = link.getAttribute("href")?.split("/app/")[1];
-    if (!id) return;
-
-    const chatItem = link.closest(".conversation-items-container");
+    const targetGroupId = chatMapping[chatId];
+    const chatItem = link.closest(".conversation-items-container") as HTMLElement;
     if (!chatItem) return;
 
-    const targetGroupId =
-      id.charCodeAt(id.length - 1) % 2 === 0 ? "study" : "misc";
+    // 해당 그룹이 실제로 존재하는지 확인
+    const groupExists = groups.find(g => g.id === targetGroupId);
 
-    const targetContainer = document.querySelector(
-      `#group-${targetGroupId} .group-content`,
-    );
-
-    if (targetContainer) {
-      targetContainer.appendChild(chatItem);
-      link.setAttribute("data-struct-organized", "true");
-      changed = true;
+    if (targetGroupId && groupExists) {
+      const targetContainer = document.querySelector(`#group-${targetGroupId} .group-content`);
+      if (targetContainer && chatItem.parentElement !== targetContainer) {
+        targetContainer.appendChild(chatItem);
+      }
+    } else {
+      // 제외된 경우: 이미 그룹 안에 있다면 밖으로 꺼냄
+      if (chatItem.parentElement?.classList.contains("group-content")) {
+        const structContainer = nav.querySelector(".struct-container");
+        if (structContainer) {
+          structContainer.after(chatItem);
+        } else {
+          nav.prepend(chatItem);
+        }
+      }
     }
   });
-
-  return changed;
 };
